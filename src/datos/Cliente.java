@@ -111,7 +111,7 @@ public class Cliente {
             if (bufferedWriter != null) {
                 bufferedWriter.close();
             }
-            System.exit(0);  //Cerramos la aplicación
+            System.exit(0); //Cerramos la aplicación
         } catch (IOException e) {
             e.printStackTrace();
         }
