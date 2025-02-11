@@ -1,3 +1,5 @@
+package datos;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -6,6 +8,7 @@ import java.io.*;
 import java.net.Socket;
 
 public class Cliente {
+    //Creamos los elementos de la interfaz gráfica
     private JFrame frame;
     private JTextArea areaMensajes;
     private JTextField campoTexto;
@@ -17,12 +20,12 @@ public class Cliente {
 
     public Cliente(Socket socket, String nombreUsuario) {
         try {
-            this.socket = socket;
-            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.socket = socket; //Establecemos conexión con el servidor
+            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); //Para enviar mensajes al servidor
+            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream())); //Para recibir mensajes del servidor
             this.nombreUsuario = nombreUsuario;
 
-            // Configurar la interfaz gráfica
+            //Configuramos la interfaz gráfica
             frame = new JFrame("Chat Cliente");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(400, 500);
@@ -41,7 +44,7 @@ public class Cliente {
             panelEnvio.add(btnEnviar, BorderLayout.EAST);
             frame.add(panelEnvio, BorderLayout.SOUTH);
 
-            // Configuración del evento de botón "Enviar"
+            //Configuración del evento del botón Enviar
             btnEnviar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -51,7 +54,7 @@ public class Cliente {
 
             frame.setVisible(true);
 
-            // Enviar el nombre de usuario al servidor
+            //Enviamos el nombre de usuario al servidor
             bufferedWriter.write(nombreUsuario);
             bufferedWriter.newLine();
             bufferedWriter.flush();
@@ -61,29 +64,33 @@ public class Cliente {
         }
     }
 
-    public void enviarMensaje() {
+    public void enviarMensaje() { //Métod0 para enviar mensajes al servidor
         try {
             String mensajeEnviado = campoTexto.getText();
-            areaMensajes.append(nombreUsuario + ": " + mensajeEnviado + "\n");
-            bufferedWriter.write(nombreUsuario + ": " + mensajeEnviado);
+            if(mensajeEnviado.isEmpty()){
+                JOptionPane.showMessageDialog(btnEnviar, "Introduce un mensaje antes de enviarlo");
+                return; //Si el mensaje está vacío, no se envía
+            }
+            areaMensajes.append(nombreUsuario + ": " + mensajeEnviado + "\n"); //Mostramos el mensaje en el área de mensajes
+            bufferedWriter.write(nombreUsuario + ": " + mensajeEnviado); //Enviamos el mensaje al servidor
             bufferedWriter.newLine();
             bufferedWriter.flush();
-            campoTexto.setText("");  // Limpiar campo de texto
+            campoTexto.setText(""); //Limpiamos campo de texto
         } catch (IOException e) {
-            cerrarCliente();
+            cerrarCliente(); //Si hay un error, cerramos la conexión
         }
     }
 
-    public void buscarMensajes() {
-        new Thread(new Runnable() {
+    public void buscarMensajes() { //Métod0 para recibir mensajes del servidor
+        new Thread(new Runnable() { //Creamos un hilo para recibir mensajes
             @Override
             public void run() {
                 String mensajeRecibido;
                 try {
                     while (!socket.isClosed()) {
-                        mensajeRecibido = bufferedReader.readLine();
+                        mensajeRecibido = bufferedReader.readLine(); //Leemos el mensaje del servidor
                         if (mensajeRecibido != null) {
-                            areaMensajes.append(mensajeRecibido + "\n");
+                            areaMensajes.append(mensajeRecibido + "\n"); //Mostramos el mensaje en el área de mensajes en caso de que este no sea nulo
                         }
                     }
                 } catch (IOException e) {
@@ -93,7 +100,7 @@ public class Cliente {
         }).start();
     }
 
-    public void cerrarCliente() {
+    public void cerrarCliente() { //Métod0 para cerrar la conexión con el servidor
         try {
             if (socket != null) {
                 socket.close();
@@ -104,7 +111,7 @@ public class Cliente {
             if (bufferedWriter != null) {
                 bufferedWriter.close();
             }
-            System.exit(0);  // Terminar el programa
+            System.exit(0);  //Cerramos la aplicación
         } catch (IOException e) {
             e.printStackTrace();
         }

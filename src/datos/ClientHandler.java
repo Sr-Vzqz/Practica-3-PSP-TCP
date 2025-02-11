@@ -1,3 +1,5 @@
+package datos;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -7,11 +9,11 @@ import java.util.Set;
 
 public class ClientHandler implements Runnable {
 
-    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
-    public static ArrayList<String> historialMensajes = new ArrayList<>();
-    public static Set<String> nombresUsuarios = new HashSet<>();
-    private ServerSocket serverSocket;
-    private Socket socket;
+    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>(); //Lista de clientes
+    public static ArrayList<String> historialMensajes = new ArrayList<>(); //Historial de mensajes a mostrar a los clientes que se conecten
+    public static Set<String> nombresUsuarios = new HashSet<>(); //Lista de nombres de usuarios
+    private ServerSocket serverSocket; //Socket del servidor
+    private Socket socket; //Socket del cliente
     //BufferedReader y BufferedWriter para recoger y enviar mensajes al servidor
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
@@ -23,15 +25,15 @@ public class ClientHandler implements Runnable {
             //Inicializamos los BufferedReader y BufferedWriter con los streams de entrada y salida del socket
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.nombreCliente = "";
+            this.nombreCliente = ""; //Inicializamos el nombre del cliente a vacío
             String comprobarNombre = bufferedReader.readLine();
-            boolean nombreValido = false;
+            boolean nombreValido = false; //Variable para comprobar si el nombre de usuario es válido
             while(!nombreValido){
                 if (nombresUsuarios.contains(comprobarNombre)) {
-                    bufferedWriter.write("SERVIDOR: El nombre de usuario ya está en uso");
+                    bufferedWriter.write("SERVIDOR: El nombre de usuario ya está en uso"); //Enviamos un mensaje al cliente si el nombre de usuario ya está en uso
                     bufferedWriter.newLine();
                     bufferedWriter.flush();
-                    expulsarCliente(socket,bufferedReader,bufferedWriter);
+                    expulsarCliente(socket,bufferedReader,bufferedWriter); //Expulsamos al cliente y salimos del bucle
                     return;
                 } else {
                     //Añadimos el nombre de usuario a la lista de nombres de usuarios
@@ -60,14 +62,13 @@ public class ClientHandler implements Runnable {
 
     }
 
-    public void enviarMensaje(String mensaje) {
-        if (!mensaje.contains("SERVIDOR:")) {
+    public void enviarMensaje(String mensaje) { //Métod0 para enviar mensajes a los clientes
+        if (!mensaje.contains("SERVIDOR:")) { //Si el mensaje no es del servidor, lo añadimos al historial, ya que no queremos mostrar los mensajes del servidor en el chat
             historialMensajes.add(mensaje);
         }
         for (ClientHandler clientHandler : clientHandlers) {
             try {
-                if (!clientHandler.nombreCliente.equals(this.nombreCliente)) {
-
+                if (!clientHandler.nombreCliente.equals(this.nombreCliente)) { //Si el cliente no es el que envía el mensaje, se lo enviamos
                     clientHandler.bufferedWriter.write(mensaje);
                     clientHandler.bufferedWriter.newLine();
                     clientHandler.bufferedWriter.flush();
@@ -78,16 +79,16 @@ public class ClientHandler implements Runnable {
             }
         }
     }
-    public void quitarCliente(){
+    public void quitarCliente(){ //Métod0 para quitar un cliente de la lista de clientes
         clientHandlers.remove(this);
         nombresUsuarios.remove(this.nombreCliente);
         if (!nombreCliente.equals("")) {
             enviarMensaje("SERVIDOR: " + nombreCliente + " se ha desconectado");
         }
     }
-    public void cerrarCliente(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
-        quitarCliente();
-        try{
+    public void cerrarCliente(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){ //Métod0 para cerrar la conexión con el cliente
+        quitarCliente(); //Quitamos al cliente de la lista de clientes
+        try{ //Cerramos el socket y los streams de entrada y salida
             if (socket != null && !socket.isClosed()){
                 socket.close();
             }
@@ -102,7 +103,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void expulsarCliente(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
+    public void expulsarCliente(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){ //Métod0 para expulsar a un cliente, mismo métod0 que el de cerrarCliente pero sin borrar el nombre de usuario
         clientHandlers.remove(this);
         if (!nombreCliente.equals("")) {
             enviarMensaje("SERVIDOR: " + nombreCliente + " se ha desconectado");
@@ -122,22 +123,6 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void cerrarClienteSinBorrarNombre(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
-        clientHandlers.remove(this);
-        try{
-            if (socket != null && !socket.isClosed()){
-                socket.close();
-            }
-            if (bufferedReader != null){
-                bufferedReader.close();
-            }
-            if (bufferedWriter != null){
-                bufferedWriter.close();
-            }
-        } catch (IOException e) {
-            quitarCliente();
-        }
-    }
 
     @Override
     public void run() {

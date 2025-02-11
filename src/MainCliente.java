@@ -1,3 +1,5 @@
+import datos.Cliente;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
@@ -10,7 +12,7 @@ public static void main(String[] args) {
 
     Socket socket = null;
     try {
-        socket = new Socket("localhost", 12345);
+        socket = new Socket("localhost", 1234);
     } catch (IOException e) {
         e.printStackTrace();
     }

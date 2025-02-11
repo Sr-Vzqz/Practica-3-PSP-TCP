@@ -1,3 +1,5 @@
+package datos;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -13,10 +15,10 @@ public class Servidor {
         System.out.println("Servidor iniciado");
         try {
             while (!serverSocket.isClosed()) {
-                Socket socket = serverSocket.accept();
+                Socket socket = serverSocket.accept(); //Esperamos a que un cliente se conecte
                 System.out.println("Nuevo cliente conectado");
-                ClientHandler clientHandler = new ClientHandler(socket);
-                Thread thread = new Thread(clientHandler);
+                ClientHandler clientHandler = new ClientHandler(socket); //Creamos un clientHandler
+                Thread thread = new Thread(clientHandler); //Creamos un hilo para el clientHandler y lo iniciamos
                 thread.start();
             }
         } catch (IOException e) {
@@ -24,13 +26,4 @@ public class Servidor {
         }
     }
 
-    public void cerrarServidor() {
-        try {
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
