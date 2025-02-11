@@ -138,6 +138,6 @@ public class ClientHandler implements Runnable {
                 cerrarCliente(socket, bufferedReader, bufferedWriter);
             }
         }
-        cerrarCliente(socket, bufferedReader, bufferedWriter);
+        //cerrarCliente(socket, bufferedReader, bufferedWriter);
     }
 }
